@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>three.js basic setup</title>
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script type="text/javascript" src="libs/three.js"></script>
+    <script type="text/javascript" src="libs/TweenMax.min.js"></script>
+
+    <script type="text/javascript">
+        var camera, scene, renderer;
+
+        var mesh;
+
+        var rotateDiff, targetRotation;
+
+        $(document).ready(init);
+
+        function init()
+        {
+            console.log("init");
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
+            camera.position.z = 1000;
+
+            scene = new THREE.Scene();
+
+            renderer = new THREE.CanvasRenderer();
+//            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            document.body.appendChild(renderer.domElement);
+
+            TweenMax.ticker.addEventListener("tick", tickEvent);
+
+            //
+            // add some geometry
+            var geometry = new THREE.CylinderGeometry(100, 100, 600);
+            var material = new THREE.MeshBasicMaterial({ color:0xff0000, wireframe:true });
+
+            mesh = new THREE.Mesh(geometry, material);
+            mesh.rotationTargetZ = mesh.rotation.z;
+            scene.add(mesh);
+
+//            TweenMax.to(mesh.rotation, 2, {x:360 * (Math.PI / 180), ease:Linear.easeNone, repeat:-1});
+
+            document.addEventListener("touchstart", docTap);
+            document.addEventListener("touchmove", docTap);
+//            document.addEventListener("mousedown", docTap);
+            document.addEventListener("mousemove", docTap);
+        }
+
+        function docTap(e)
+        {
+            console.log("docTap " + e.type);
+
+            e.preventDefault();
+
+//            if (e.type === "mousedown")
+//                console.log(e.clientX);
+//            else
+//                console.log(e.touches[0].pageX);
+
+            var xDiff = (e.pageX - window.innerWidth / 2) - mesh.position.x;
+            var yDiff = (e.pageY - window.innerHeight / 2) - mesh.position.y;
+
+            targetRotation = -Math.atan2(yDiff, xDiff) - Math.PI / 2;
+
+//            console.log(mesh.rotationTargetZ);
+        }
+
+        function tickEvent()
+        {
+            renderer.render(scene, camera);
+
+            if (targetRotation !== undefined)
+            {
+                // short rotation
+                rotateDiff = Math.atan2(Math.sin(targetRotation - mesh.rotation.z), Math.cos(targetRotation - mesh.rotation.z));
+
+                mesh.rotation.z += rotateDiff * .15;
+            }
+        }
+    </script>
+</head>
+<body>
+</body>
+</html>

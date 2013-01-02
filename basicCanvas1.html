@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>HTML5 Example</title>
+
+    <script type="text/javascript" src="js/Ball.js"></script>
+    <script type="text/javascript" src="libs/TweenMax.min.js"></script>
+    <!--<script type="text/javascript" src="js/StackBlur.js"></script>-->
+
+    <style type="text/css">
+        body
+        {
+            margin: 0;
+        }
+
+        canvas
+        {
+            background-color: #333;
+        }
+    </style>
+
+    <script type="text/javascript">
+        var canvas, ctx, ballsArray = [];
+
+        function init()
+        {
+            console.log("init");
+
+            canvas = document.createElement("canvas");
+            canvas.setAttribute("id", "canvas");
+            document.body.appendChild(canvas);
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            ctx = canvas.getContext("2d");
+            ctx.fillStyle = "rgba(255, 0, 0, .65)";
+
+            var easeArray = [Cubic.easeInOut, Sine.easeInOut, Quint.easeInOut];
+
+            var count = window.innerWidth | 0;
+
+            console.log(count);
+
+            for (var i = 0; i < count; i++)
+            {
+                var ranRed = Math.random() * 255 | 0;
+                var ranGreen = Math.random() * 255 | 0;
+                var ranAlpha = Math.random();
+
+                var b = new ninjabonsai.Ball(Math.random() * canvas.width, (Math.random() <= .5) ? canvas.height : 0, 100, {r:ranRed, g:ranGreen, b:0}, ranAlpha);
+                ballsArray.push(b);
+
+                b.repeatCount = 0;
+                b.visible = false;
+                b.scale = Math.random();
+
+                b.tween = TweenMax.to(b, Math.random() * 3 + 1, {y:Math.random() * canvas.height, scale:0, alpha:0, onStart:animationStart, onStartParams:[b], ease:easeArray[Math.random() * easeArray.length | 0], delay:Math.random() * 6, yoyo:true, repeat:-1, onRepeat:setPos, onRepeatParams:[b]});
+            }
+
+            TweenMax.ticker.addEventListener("tick", tick);
+        }
+
+        function animationStart(b)
+        {
+            b.visible = true;
+        }
+
+        function setPos(b)
+        {
+            if (++b.repeatCount % 2 == 1)
+            {
+                b.x = Math.random() * canvas.width;
+                b.alpha = Math.random();
+                b.color.r = Math.random() * 255 | 0;
+                b.color.g = Math.random() * 255 | 0;
+//                box.y = Math.random() * canvas.height;
+
+            }
+            else
+                b.tween.updateTo({y:Math.random() * canvas.height, scale:0}, false);
+        }
+
+        function tick()
+        {
+            var len = ballsArray.length;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+//            stackBlurCanvasRGBA("canvas", 0, 0, canvas.width, canvas.height, 2);
+
+            for (var i = 0; i < len; i++)
+            {
+                var b = ballsArray[i];
+
+                if (b.visible)
+                {
+                    ctx.fillStyle = "rgba(" + b.color.r + ", " + b.color.g + ", " + b.color.b + ", " + b.alpha + ")";
+                    ctx.beginPath();
+                    ctx.arc(b.x, b.y, b.r * b.scale, 0, Math.PI * 2, true);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+            }
+        }
+    </script>
+</head>
+<body onload="init()">
+</body>
+</html>

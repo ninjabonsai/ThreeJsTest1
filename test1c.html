@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>three.js basic setup</title>
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script type="text/javascript" src="libs/three.js"></script>
+    <script type="text/javascript" src="libs/TweenMax.min.js"></script>
+
+    <script type="text/javascript">
+        var camera, scene, renderer;
+
+        $(document).ready(init);
+
+        function init()
+        {
+            console.log("init");
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
+            camera.position.z = 1000;
+
+            scene = new THREE.Scene();
+
+            var material = new THREE.ParticleBasicMaterial({ map:new THREE.Texture(generateSprite()), blending:THREE.NormalBlending });
+            var particle;
+            var i;
+
+            for (i = 0; i < 20; i++)
+            {
+                particle = new THREE.Particle(material);
+
+                initParticle(particle, i * 10);
+
+//                var tl = new TimelineMax({repeat:-1, yoyo:true});
+//                tl.append( TweenMax.to(particle.position, 3, {x:Math.random() * 1000 - 500, y:Math.random() * 1000 - 500, z:Math.random() * 1000 - 500, ease:Back.easeInOut}) );
+//
+//                tl.seek(Math.random() * 6);
+
+                scene.add(particle);
+            }
+
+            renderer = new THREE.CanvasRenderer();
+//            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            document.body.appendChild(renderer.domElement);
+
+            TweenMax.ticker.addEventListener("tick", tickEvent);
+        }
+
+        function initParticle(particle, delay)
+        {
+            console.log("initParticle");
+
+            particle.position.x = Math.random() * window.innerWidth - window.innerWidth / 2;
+            particle.position.y = Math.random() * window.innerHeight - window.innerHeight / 2;
+//            particle.position.z = Math.random() * 100 - 50;
+//            particle.scale.x = particle.scale.y = Math.random() * 3 + 1;
+
+        }
+
+        function generateSprite()
+        {
+
+            var canvas = document.createElement('canvas');
+            canvas.width = 100;
+            canvas.height = 100;
+
+            var context = canvas.getContext('2d');
+
+            context.fillStyle = "rgba(255, 0, 0, 1)";
+            context.beginPath();
+            context.arc(50, 50, 50, 0, Math.PI * 2, true);
+            context.closePath();
+            context.fill();
+
+            return canvas;
+
+        }
+
+        function tickEvent()
+        {
+            renderer.render(scene, camera);
+        }
+    </script>
+</head>
+<body>
+</body>
+</html>

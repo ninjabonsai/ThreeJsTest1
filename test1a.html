@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>HTML5 Example</title>
+    <script type="text/javascript" src="libs/TweenMax.min.js"></script>
+    <script type="text/javascript" src="libs/three.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+
+    <script>
+
+        var camera, scene, renderer;
+        var geometry, material, mesh;
+
+        var lastPagePos = {};
+
+        var meshRotationTargetX, meshRotationTargetY;
+
+        $(document).ready(init);
+
+        function init()
+        {
+            console.log("init");
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
+            camera.position.z = 1000;
+
+            scene = new THREE.Scene();
+
+            geometry = new THREE.CylinderGeometry(100, 100, 600);
+            material = new THREE.MeshBasicMaterial({ color:0xff0000, wireframe:true });
+
+            mesh = new THREE.Mesh(geometry, material);
+            meshRotationTargetX = mesh.rotation.x;
+            meshRotationTargetY = mesh.rotation.y;
+            scene.add(mesh);
+
+            renderer = new THREE.CanvasRenderer();
+//            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            document.body.appendChild(renderer.domElement);
+
+            TweenMax.ticker.addEventListener("tick", tick);
+
+//            TweenMax.to(mesh.rotation, 3, {x:2, y:2, ease:Back.easeInOut, yoyo:true, repeat:-1});
+
+            document.addEventListener("touchstart", touchStart);
+            document.addEventListener("touchmove", touchMove);
+        }
+
+        function touchStart(event)
+        {
+            console.log("touchStart");
+
+            if (event.touches.length == 1)
+            {
+                event.preventDefault();
+
+                lastPagePos.x = event.touches[ 0 ].pageX;
+                lastPagePos.y = event.touches[ 0 ].pageY;
+            }
+        }
+
+        function touchMove(event)
+        {
+            if (event.touches.length == 1)
+            {
+                event.preventDefault();
+
+                meshRotationTargetX -= (event.touches[ 0 ].pageX - lastPagePos.x) * (Math.PI / 180);
+                meshRotationTargetY += (event.touches[ 0 ].pageY - lastPagePos.y) * (Math.PI / 180);
+
+                lastPagePos.x = event.touches[ 0 ].pageX;
+                lastPagePos.y = event.touches[ 0 ].pageY;
+            }
+        }
+
+        function tick()
+        {
+            // note: three.js includes requestAnimationFrame shim
+//            requestAnimationFrame(animate);
+
+//            mesh.rotation.x += 0.01;
+//            mesh.rotation.y += 0.02;
+
+//            camera.position.x += (cameraTargetX - camera.position.x) * .05;
+//            camera.position.y += (cameraTargetY - camera.position.y) * .05;
+
+            mesh.rotation.z += (meshRotationTargetX - mesh.rotation.z) * .05;
+            mesh.rotation.x += (meshRotationTargetY - mesh.rotation.x) * .05;
+
+            camera.lookAt(scene.position);
+
+            renderer.render(scene, camera);
+        }
+    </script>
+</head>
+<body>
+</body>
+</html>
